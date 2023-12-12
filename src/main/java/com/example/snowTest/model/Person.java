@@ -15,12 +15,14 @@ import lombok.Setter;
 @Getter
 public class Person {
     @Id
-    @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "NAME")
     private String name;
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Long getId() {
         return id;
@@ -31,10 +33,6 @@ public class Person {
     }
 
     public void setName(String name) {
-        this.name = name;
-    }
-
-    public Person(String name) {
         this.name = name;
     }
 }

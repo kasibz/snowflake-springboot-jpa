@@ -5,6 +5,7 @@ import com.example.snowTest.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import com.example.snowTest.model.Person;
 
@@ -46,7 +47,8 @@ public class PersonController {
     @PostMapping("/person")
     public ResponseEntity<Person> addPerson(@RequestBody PersonRequest personRequest) {
         personRepo.createPerson(personRequest.getName());
-        Person newPerson = new Person(personRequest.getName());
+        Person newPerson = new Person();
+        newPerson.setName(personRequest.getName());
         return new ResponseEntity<>(newPerson, HttpStatus.OK);
     }
 
@@ -79,10 +81,15 @@ public class PersonController {
     }
 
     @PostMapping("/hibernate/person")
-    public ResponseEntity<Person> addPerson(@RequestBody Person person) {
-        Person personObj = personRepo.save(person);
+    public ResponseEntity<Person> addHibernatePerson(@RequestBody PersonRequest personRequest) {
+        Person personObj = new Person();
+        personObj.setName(personRequest.getName());
+        System.out.println(personRequest.getName());
+        System.out.println(personObj.getName());
 
-        return new ResponseEntity<>(personObj, HttpStatus.OK);
+
+        return new ResponseEntity<>(personRepo.save(personObj), HttpStatus.OK);
     }
+
 
 }
