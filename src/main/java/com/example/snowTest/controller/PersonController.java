@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import com.example.snowTest.model.Person;
+import java.util.UUID;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +34,7 @@ public class PersonController {
     }
 
     @GetMapping("/person/{id}")
-    public ResponseEntity<Person> getPersonById(@PathVariable Long id) {
+    public ResponseEntity<Person> getPersonById(@PathVariable String id) {
         Optional<Person> personData = personRepo.findPersonById(id);
 
         if(personData.isPresent()) {
@@ -46,19 +47,23 @@ public class PersonController {
 //     custom working post
     @PostMapping("/person")
     public ResponseEntity<Person> addPerson(@RequestBody PersonRequest personRequest) {
-        personRepo.createPerson(personRequest.getName());
+        String newUUID = UUID.randomUUID().toString();
+        personRepo.createPerson(newUUID, personRequest.getName());
         Person newPerson = new Person();
+        // make UUID
+        newPerson.setId(newUUID);
         newPerson.setName(personRequest.getName());
         return new ResponseEntity<>(newPerson, HttpStatus.OK);
     }
 
     //post with hibernate - troubleshooting -NOT WORKING
     @PutMapping("/person/{id}")
-    public ResponseEntity<Person> putPerson(@PathVariable Long id, @RequestBody PersonRequest personRequest) {
+    public ResponseEntity<Person> putPerson(@PathVariable String id, @RequestBody PersonRequest personRequest) {
         Optional<Person> personData = personRepo.findPersonById(id);
 
         if(personData.isPresent()) {
             Person updatedPerson = personData.get();
+
             updatedPerson.setName(personRequest.getName());
             personRepo.updatePerson(updatedPerson.getId(), updatedPerson.getName());
             return new ResponseEntity<>(updatedPerson, HttpStatus.OK);
@@ -68,7 +73,7 @@ public class PersonController {
     }
 
     @DeleteMapping("/person/{id}")
-    public ResponseEntity<Person> removePerson(@PathVariable Long id) {
+    public ResponseEntity<Person> removePerson(@PathVariable String id) {
         Optional<Person> personData = personRepo.findPersonById(id);
 
         if(personData.isPresent()) {
@@ -83,9 +88,9 @@ public class PersonController {
     @PostMapping("/hibernate/person")
     public ResponseEntity<Person> addHibernatePerson(@RequestBody PersonRequest personRequest) {
         Person personObj = new Person();
+        String newUUID = UUID.randomUUID().toString();
+        personObj.setId(newUUID);
         personObj.setName(personRequest.getName());
-        System.out.println(personRequest.getName());
-        System.out.println(personObj.getName());
 
 
         return new ResponseEntity<>(personRepo.save(personObj), HttpStatus.OK);

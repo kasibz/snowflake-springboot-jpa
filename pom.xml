@@ -14,7 +14,7 @@
 	<name>snowTest</name>
 	<description>Connect spring to snow</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>15</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
