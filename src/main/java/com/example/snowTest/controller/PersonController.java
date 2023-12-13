@@ -5,11 +5,11 @@ import com.example.snowTest.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import com.example.snowTest.model.Person;
-import java.util.UUID;
 
+import java.util.ArrayList;
+import java.util.UUID;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +22,8 @@ public class PersonController {
     @GetMapping("/person")
     public ResponseEntity<List<Person>> getAllPersons() {
         try {
-            List<Person> personList = personRepo.findAllPersons();
+            List<Person> personList = new ArrayList<>();
+            personRepo.findAll().forEach(personList::add);
 
             if (personList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -35,7 +36,7 @@ public class PersonController {
 
     @GetMapping("/person/{id}")
     public ResponseEntity<Person> getPersonById(@PathVariable String id) {
-        Optional<Person> personData = personRepo.findPersonById(id);
+        Optional<Person> personData = personRepo.findById(id);
 
         if(personData.isPresent()) {
             return new ResponseEntity<>(personData.get(), HttpStatus.OK);
@@ -44,29 +45,27 @@ public class PersonController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-//     custom working post
     @PostMapping("/person")
-    public ResponseEntity<Person> addPerson(@RequestBody PersonRequest personRequest) {
+    public ResponseEntity<Person> addHibernatePerson(@RequestBody PersonRequest personRequest) {
+        Person personObj = new Person();
         String newUUID = UUID.randomUUID().toString();
-        personRepo.createPerson(newUUID, personRequest.getName());
-        Person newPerson = new Person();
-        // make UUID
-        newPerson.setId(newUUID);
-        newPerson.setName(personRequest.getName());
-        return new ResponseEntity<>(newPerson, HttpStatus.OK);
+        personObj.setId(newUUID);
+        personObj.setName(personRequest.getName());
+        return new ResponseEntity<>(personRepo.save(personObj), HttpStatus.OK);
     }
 
-    //post with hibernate - troubleshooting -NOT WORKING
     @PutMapping("/person/{id}")
     public ResponseEntity<Person> putPerson(@PathVariable String id, @RequestBody PersonRequest personRequest) {
-        Optional<Person> personData = personRepo.findPersonById(id);
+        Optional<Person> personData = personRepo.findById(id);
 
         if(personData.isPresent()) {
-            Person updatedPerson = personData.get();
+            Person existingPerson = personData.get();
+            existingPerson.setName(personRequest.getName());
+            existingPerson.setId(id);
 
-            updatedPerson.setName(personRequest.getName());
-            personRepo.updatePerson(updatedPerson.getId(), updatedPerson.getName());
-            return new ResponseEntity<>(updatedPerson, HttpStatus.OK);
+            Person updatedPerson = personRepo.save(existingPerson);
+
+            return new ResponseEntity<>(existingPerson, HttpStatus.OK);
         }
 
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -74,27 +73,14 @@ public class PersonController {
 
     @DeleteMapping("/person/{id}")
     public ResponseEntity<Person> removePerson(@PathVariable String id) {
-        Optional<Person> personData = personRepo.findPersonById(id);
+        Optional<Person> personData = personRepo.findById(id);
 
         if(personData.isPresent()) {
             Person deletedPerson = personData.get();
-            personRepo.deletePerson(id);
+            personRepo.delete(deletedPerson);
             return new ResponseEntity<>(deletedPerson, HttpStatus.OK);
         }
 
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
-    @PostMapping("/hibernate/person")
-    public ResponseEntity<Person> addHibernatePerson(@RequestBody PersonRequest personRequest) {
-        Person personObj = new Person();
-        String newUUID = UUID.randomUUID().toString();
-        personObj.setId(newUUID);
-        personObj.setName(personRequest.getName());
-
-
-        return new ResponseEntity<>(personRepo.save(personObj), HttpStatus.OK);
-    }
-
-
 }
