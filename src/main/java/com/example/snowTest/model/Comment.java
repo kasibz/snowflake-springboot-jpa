@@ -1,12 +1,9 @@
 package com.example.snowTest.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -14,14 +11,15 @@ import java.time.LocalDateTime;
 @Table(name = "COMMENT")
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 public class Comment {
     @Id
     private String id;
     private String description;
-    private LocalDateTime date_created;
-    private String person_id;
+    private LocalDateTime dateCreated;
+    @ManyToOne
+    @JoinColumn(name = "personId", nullable = false)
+    @JsonBackReference
+    private Person person;
 
     public String getId() {
         return id;
@@ -39,19 +37,19 @@ public class Comment {
         this.description = description;
     }
 
-    public LocalDateTime getDate_created() {
-        return date_created;
+    public LocalDateTime getDateCreated() {
+        return dateCreated;
     }
 
-    public void setDate_created(LocalDateTime date_created) {
-        this.date_created = date_created;
+    public void setDateCreated(LocalDateTime dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
-    public String getPerson_id() {
-        return person_id;
+    public Person getPerson() {
+        return person;
     }
 
-    public void setPerson_id(String person_id) {
-        this.person_id = person_id;
+    public void setPerson(Person person) {
+        this.person = person;
     }
 }

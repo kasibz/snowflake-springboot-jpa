@@ -46,12 +46,14 @@ public class PersonController {
     }
 
     @PostMapping("/person")
-    public ResponseEntity<Person> addHibernatePerson(@RequestBody PersonRequest personRequest) {
-        Person personObj = new Person();
-        String newUUID = UUID.randomUUID().toString();
-        personObj.setId(newUUID);
-        personObj.setName(personRequest.getName());
-        return new ResponseEntity<>(personRepo.save(personObj), HttpStatus.OK);
+    public ResponseEntity<Person> addPerson(@RequestBody PersonRequest personRequest) {
+        Person newPerson = new Person();
+        String uuid = UUID.randomUUID().toString();
+        newPerson.setId(uuid);
+        newPerson.setName(personRequest.getName());
+        newPerson.setAddress(personRequest.getAddress());
+        newPerson.setAge(personRequest.getAge());
+        return new ResponseEntity<>(personRepo.save(newPerson), HttpStatus.OK);
     }
 
     @PutMapping("/person/{id}")
@@ -60,12 +62,20 @@ public class PersonController {
 
         if(personData.isPresent()) {
             Person existingPerson = personData.get();
-            existingPerson.setName(personRequest.getName());
-            existingPerson.setId(id);
 
-            Person updatedPerson = personRepo.save(existingPerson);
+            if (personRequest.getName() != null) {
+               existingPerson.setName(personRequest.getName());
+            }
 
-            return new ResponseEntity<>(existingPerson, HttpStatus.OK);
+            if (personRequest.getAddress() != null) {
+                existingPerson.setAddress(personRequest.getAddress());
+            }
+
+            if (personRequest.getAge() != null) {
+                existingPerson.setAge(personRequest.getAge());
+            }
+
+            return new ResponseEntity<>(personRepo.save(existingPerson), HttpStatus.OK);
         }
 
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
