@@ -1,0 +1,21 @@
+CREATE TABLE PERSON (
+    id INTEGER AUTOINCREMENT PRIMARY KEY,
+    name VARCHAR,
+    address VARCHAR,
+    age INTEGER);
+	
+CREATE TABLE COMMENT (
+    id INTEGER AUTOINCREMENT PRIMARY KEY,
+    description VARCHAR,
+    date_created DATE,
+    person_id INTEGER,
+    FOREIGN KEY (person_id) REFERENCES PERSON(id)
+);
+
+INSERT INTO PERSON (name, address, age)
+values ('John', '123 Main St', 20);
+
+INSERT INTO COMMENT 
+(description, date_created, person_id)
+VALUES 
+('My first comment', '2023-12-12', 1);
